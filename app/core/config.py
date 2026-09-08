@@ -13,7 +13,7 @@ class Settings(BaseSettings):
     deepseek_api_key: Optional[str] = None
 
     # Configurable Models per Provider
-    groq_model: str = "qwen/qwen3.8-27b"
+    groq_model: str = "llama-3.3-70b-versatile"
     gemini_model: str = "gemini-1.5-flash"
     mistral_model: str = "mistral-small-latest"
     deepseek_model: str = "deepseek-chat"
@@ -23,6 +23,29 @@ class Settings(BaseSettings):
     llm_timeout_seconds: float = 45.0
     llm_max_retries: int = 2
     llm_backoff_factor: float = 1.5
+
+    # ── RAG Pipeline Configuration ──────────────────────────────────────────
+    # Knowledge Base
+    knowledge_base_dir: str = "../knowledge_base"
+
+    # Chunking
+    chunk_size: int = 1000
+    chunk_overlap: int = 150
+    chunking_strategy: str = "semantic"
+
+    # Embeddings (Gemini only)
+    embedding_model: str = "gemini-embedding-001"
+    embedding_dimension: int = 768
+    embedding_version: str = "1.0"
+    embedding_batch_size: int = 50
+
+    # Data directory for interim storage (hash registry, etc.)
+    data_dir: str = "./data"
+
+    # ── MongoDB Foundation & Storage ─────────────────────────────────────────
+    mongo_url: Optional[str] = None
+    mongo_db_name: str = "hopca_database"
+    mongo_timeout_ms: int = 5000
 
     def get_model_for_provider(self, provider_name: str) -> str:
         """Get the configured model name for a specific provider."""
@@ -43,3 +66,4 @@ class Settings(BaseSettings):
 
 
 settings = Settings()
+
