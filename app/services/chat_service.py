@@ -25,14 +25,23 @@ class ChatService:
         return messages
 
     async def get_response(self, request: ChatRequest) -> Tuple[str, str, str]:
-        """Process chat request and return (response_text, provider_name, model_name)."""
+        """Process chat request through the LangGraph agent orchestrator and return (response_text, provider, model)."""
+        from app.agents.graph import hospital_agent_graph
+
         messages = self.format_messages(request)
-        return await llm_service.generate(
-            messages=messages,
-            preferred_provider=request.preferred_provider,
-            model=request.model,
-            temperature=request.temperature or 0.7,
-        )
+        state = {
+            "messages": messages,
+            "session_id": None,
+            "current_step": "init",
+        }
+
+        # Run multi-agent orchestrator
+        final_state = await hospital_agent_graph.execute(state)
+        response_text = final_state.get("final_response") or "I am here to assist with hospital operations."
+
+        provider = "agent_orchestrator"
+        model = "hopca-langgraph-v1"
+        return response_text, provider, model
 
     async def stream_response(self, request: ChatRequest) -> AsyncGenerator[str, None]:
         """
